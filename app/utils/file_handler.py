@@ -134,6 +134,35 @@ class FileHandler:
         ファイル名からMIMEタイプを取得
         """
         import mimetypes
-        
+
         mime_type, _ = mimetypes.guess_type(filename)
         return mime_type or 'application/octet-stream'
+
+    async def delete_file(self, file_path: Path) -> bool:
+        """
+        ファイルを削除
+        """
+        try:
+            if file_path.exists() and file_path.is_file():
+                file_path.unlink()
+                print(f"ファイルを削除しました: {file_path}")
+                return True
+            return False
+        except Exception as e:
+            print(f"ファイル削除エラー {file_path}: {e}")
+            return False
+
+    async def delete_files_by_pattern(self, directory: Path, pattern: str) -> int:
+        """
+        パターンに一致するファイルを削除
+        """
+        deleted_count = 0
+        try:
+            for file_path in directory.glob(pattern):
+                if file_path.is_file():
+                    if await self.delete_file(file_path):
+                        deleted_count += 1
+            return deleted_count
+        except Exception as e:
+            print(f"パターン削除エラー: {e}")
+            return deleted_count

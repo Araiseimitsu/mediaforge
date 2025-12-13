@@ -9,6 +9,7 @@ from typing import Optional
 from app.services.image_converter import ImageConverter
 from app.services.video_converter import VideoConverter
 from app.services.audio_converter import AudioConverter
+from app.utils.file_handler import FileHandler
 
 router = APIRouter(prefix="/api/convert", tags=["conversion"])
 
@@ -99,7 +100,11 @@ async def process_conversion(
                 error_detail = traceback.format_exc()
                 print(f"音声変換エラーの詳細:\n{error_detail}")
                 raise HTTPException(status_code=500, detail=f"音声変換エラー: {str(e)}")
-        
+
+        # 変換完了後、元のアップロードファイルを削除
+        file_handler = FileHandler()
+        await file_handler.delete_file(input_path)
+
         return {
             "success": True,
             "download_url": f"/api/convert/download/{output_filename}",
@@ -114,12 +119,28 @@ async def download_file(filename: str):
     file_path = Path("downloads") / filename
     if not file_path.exists():
         raise HTTPException(status_code=404, detail="ファイルが見つかりません")
-    
+
+    # ダウンロード後にファイルを削除するためのバックグラウンドタスクを追加
+    from fastapi import BackgroundTasks
+    from starlette.background import BackgroundTask
+
     return FileResponse(
         path=file_path,
         filename=filename,
-        media_type='application/octet-stream'
+        media_type='application/octet-stream',
+        background=BackgroundTask(cleanup_downloaded_file, file_path)
     )
+
+async def cleanup_downloaded_file(file_path: Path):
+    """
+    ダウンロード完了後にファイルを削除
+    """
+    try:
+        if file_path.exists():
+            file_path.unlink()
+            print(f"ダウンロード済みファイルを削除しました: {file_path}")
+    except Exception as e:
+        print(f"ダウンロード済みファイルの削除エラー: {e}")
 
 @router.get("/formats/{file_type}")
 async def get_supported_formats(file_type: str):

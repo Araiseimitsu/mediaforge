@@ -219,11 +219,22 @@ class AudioConverter:
             export_params = self._get_export_params(output_format, quality)
             logger.info(f"エクスポートパラメータ: {export_params}")
 
+            # フォーマット名のマッピング（FFmpegが期待する名前に変換）
+            format_mapping = {
+                'aac': 'adts',  # AACの場合はADTS形式を使用
+                'mp3': 'mp3',
+                'wav': 'wav',
+                'flac': 'flac',
+                'ogg': 'ogg'
+            }
+
+            ffmpeg_format = format_mapping.get(output_format.lower(), output_format.lower())
+
             # 音声を変換して保存
-            logger.info(f"音声変換実行中...")
+            logger.info(f"音声変換実行中... (FFmpegフォーマット: {ffmpeg_format})")
             audio.export(
                 str(output_path),
-                format=output_format,
+                format=ffmpeg_format,
                 **export_params
             )
             logger.info(f"音声変換成功: {output_path}")

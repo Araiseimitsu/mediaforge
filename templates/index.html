@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,7 +15,14 @@
     <link rel="stylesheet" href="/static/css/style.css">
     <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
 </head>
+
 <body class="min-h-screen">
+    <div class="fixed top-4 right-4 z-50">
+        <button id="help-btn" class="sketch-button bg-white" aria-label="ヘルプ">
+            <i class="fas fa-question-circle text-2xl"></i>
+        </button>
+    </div>
+
     <div class="container mx-auto px-4 py-8 max-w-4xl">
         <!-- ヘッダー -->
         <header class="text-center mb-12 fade-in">
@@ -40,7 +48,7 @@
                         <i class="fas fa-folder-open mr-2"></i>ファイルを選ぶ
                     </button>
                 </div>
-                
+
                 <!-- サポート形式の表示 -->
                 <div class="mt-8 grid grid-cols-3 gap-6 text-center">
                     <div class="p-3">
@@ -75,7 +83,7 @@
                     <h3 class="text-xl font-bold text-gray-800 mb-4">
                         <i class="fas fa-sliders-h mr-2"></i>設定
                     </h3>
-                    
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label class="block text-lg font-medium text-gray-700 mb-2">どう変換する？</label>
@@ -83,7 +91,7 @@
                                 <option value="">形式を選んでね</option>
                             </select>
                         </div>
-                        
+
                         <div>
                             <label class="block text-lg font-medium text-gray-700 mb-2">品質は？</label>
                             <select id="quality" class="w-full">
@@ -136,7 +144,8 @@
                     </h3>
                     <div id="result-info" class="mb-6 text-lg"></div>
                     <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                        <button id="download-btn" class="sketch-button primary bg-green-600 border-green-700 text-white">
+                        <button id="download-btn"
+                            class="sketch-button primary bg-green-600 border-green-700 text-white">
                             <i class="fas fa-download mr-2"></i>保存する
                         </button>
                         <button id="new-file-btn" class="sketch-button">
@@ -150,12 +159,68 @@
         <!-- フッター -->
         <footer class="text-center mt-16 text-gray-500 pb-8">
             <p class="text-lg">
-                <i class="fas fa-heart text-red-400"></i> 
+                <i class="fas fa-heart text-red-400"></i>
                 MediaForge - Handwritten Edition
             </p>
         </footer>
     </div>
 
+    <!-- Help Modal -->
+    <div id="help-modal"
+        class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center opacity-0 transition-opacity duration-300">
+        <div class="paper-card w-full max-w-lg mx-4 relative transform scale-95 transition-transform duration-300"
+            style="max-height: 90vh; overflow-y: auto;">
+            <button id="close-modal-btn" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-2xl">
+                <i class="fas fa-times"></i>
+            </button>
+
+            <h2 class="text-3xl font-bold mb-6 text-center border-b-2 border-dashed border-gray-300 pb-4">
+                <i class="fas fa-book-open mr-2 text-gray-700"></i>MediaForgeの使い方
+            </h2>
+
+            <div class="space-y-6 text-lg">
+                <div class="flex items-start">
+                    <div class="font-bold text-2xl mr-4 text-gray-400">1</div>
+                    <div>
+                        <h4 class="font-bold mb-1">ファイルを選ぶ</h4>
+                        <p class="text-gray-600">変換したいファイルをドラッグ＆ドロップするか、ボタンを押して選んでね。</p>
+                    </div>
+                </div>
+
+                <div class="flex items-start">
+                    <div class="font-bold text-2xl mr-4 text-gray-400">2</div>
+                    <div>
+                        <h4 class="font-bold mb-1">形式を選ぶ</h4>
+                        <p class="text-gray-600">どんな形式に変換したいか選んでね。画像ならサイズも指定できるよ。</p>
+                    </div>
+                </div>
+
+                <div class="flex items-start">
+                    <div class="font-bold text-2xl mr-4 text-gray-400">3</div>
+                    <div>
+                        <h4 class="font-bold mb-1">変換スタート！</h4>
+                        <p class="text-gray-600">「変換スタート！」ボタンを押してね。少し待つと出来上がり！</p>
+                    </div>
+                </div>
+
+                <div class="flex items-start">
+                    <div class="font-bold text-2xl mr-4 text-gray-400">4</div>
+                    <div>
+                        <h4 class="font-bold mb-1">保存する</h4>
+                        <p class="text-gray-600">変換されたファイルをダウンロードして保存してね。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 pt-6 border-t-2 border-dashed border-gray-300 text-center text-sm text-gray-500 font-mono">
+                <p>version 0.5.0</p>
+                <p>latest 2025-12-14</p>
+                <p>created by DIP Department/A・T</p>
+            </div>
+        </div>
+    </div>
+
     <script src="/static/js/app.js"></script>
 </body>
+
 </html>

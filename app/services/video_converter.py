@@ -53,7 +53,7 @@ class VideoConverter:
     ):
         """
         動画を変換する
-        
+
         Args:
             input_path: 入力ファイルパス
             output_path: 出力ファイルパス
@@ -62,12 +62,14 @@ class VideoConverter:
         """
         try:
             output_format = output_format.lower()
-            
+
             if output_format == 'gif':
                 await self._convert_to_gif(input_path, output_path, quality)
+            elif output_format == 'webm':
+                await self._convert_to_webm(input_path, output_path, quality)
             else:
                 await self._convert_video(input_path, output_path, output_format, quality)
-                
+
         except Exception as e:
             raise Exception(f"動画変換エラー: {str(e)}")
     
@@ -88,6 +90,17 @@ class VideoConverter:
             # 入力ストリーム
             input_stream = ffmpeg.input(str(input_path))
 
+            # FFmpegフォーマット名のマッピング
+            format_mapping = {
+                'mkv': 'matroska',
+                'mp4': 'mp4',
+                'avi': 'avi',
+                'mov': 'mov',
+                'webm': 'webm'
+            }
+
+            ffmpeg_format = format_mapping.get(output_format, output_format)
+
             # 出力ストリームの設定
             output_stream = input_stream.output(
                 str(output_path),
@@ -97,7 +110,7 @@ class VideoConverter:
                 audio_bitrate=quality_params['audio_bitrate'],
                 crf=quality_params['crf'],
                 preset=quality_params['preset'],
-                format=output_format
+                format=ffmpeg_format
             )
 
             # 変換実行（非同期）
@@ -116,6 +129,83 @@ class VideoConverter:
             logger.error(f"FFmpegエラー: {error_message}")
             raise Exception(f"動画変換に失敗しました: {error_message}")
     
+    async def _convert_to_webm(
+        self,
+        input_path: Union[str, Path],
+        output_path: Union[str, Path],
+        quality: Optional[str] = None
+    ):
+        """
+        動画をWebMに変換（VP8 + Vorbis）
+        VP9は非常に遅いため、VP8を使用して高速化
+        """
+        try:
+            logger.info(f"WebM変換を開始: {input_path} -> {output_path}")
+
+            # 品質設定（WebM用）- VP8を使用して高速化
+            quality_settings = {
+                'high': {
+                    'vcodec': 'libvpx',  # VP8（VP9より高速）
+                    'acodec': 'libvorbis',  # Vorbis（Opusより互換性が高い）
+                    'video_bitrate': '2000k',
+                    'audio_bitrate': '192k',
+                    'qmin': 10,
+                    'qmax': 42,
+                },
+                'medium': {
+                    'vcodec': 'libvpx',
+                    'acodec': 'libvorbis',
+                    'video_bitrate': '1000k',
+                    'audio_bitrate': '128k',
+                    'qmin': 10,
+                    'qmax': 50,
+                },
+                'low': {
+                    'vcodec': 'libvpx',
+                    'acodec': 'libvorbis',
+                    'video_bitrate': '500k',
+                    'audio_bitrate': '96k',
+                    'qmin': 10,
+                    'qmax': 60,
+                }
+            }
+
+            params = quality_settings.get(quality, quality_settings['medium'])
+
+            # 入力ストリーム
+            input_stream = ffmpeg.input(str(input_path))
+
+            # 出力ストリームの設定（WebM用）
+            output_stream = input_stream.output(
+                str(output_path),
+                vcodec=params['vcodec'],
+                acodec=params['acodec'],
+                video_bitrate=params['video_bitrate'],
+                audio_bitrate=params['audio_bitrate'],
+                qmin=params['qmin'],
+                qmax=params['qmax'],
+                format='webm',
+                **{'cpu-used': 4}  # エンコード速度優先（-16～16、大きいほど速い）
+            )
+
+            logger.info("WebM変換処理を実行中...")
+
+            # 変換実行（非同期）
+            await asyncio.to_thread(
+                ffmpeg.run,
+                output_stream,
+                cmd=self.ffmpeg_path,
+                overwrite_output=True,
+                capture_stdout=True,
+                capture_stderr=True
+            )
+            logger.info(f"WebM変換成功: {input_path} -> {output_path}")
+
+        except ffmpeg.Error as e:
+            error_message = e.stderr.decode() if e.stderr else str(e)
+            logger.error(f"WebM変換エラー: {error_message}")
+            raise Exception(f"WebM変換に失敗しました: {error_message}")
+
     async def _convert_to_gif(
         self,
         input_path: Union[str, Path],

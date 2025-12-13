@@ -12,12 +12,13 @@
 
 body {
     background-color: #f0f2f5;
-    background-image: 
+    background-image:
         radial-gradient(#bdc3c7 1px, transparent 1px),
         radial-gradient(#bdc3c7 1px, transparent 1px);
     background-size: 20px 20px;
     background-position: 0 0, 10px 10px;
-    font-family: 'Patrick Hand', cursive; /* Handwritten font */
+    font-family: 'Patrick Hand', cursive;
+    /* Handwritten font */
     color: var(--ink-color);
     line-height: 1.6;
 }
@@ -26,16 +27,15 @@ body {
 .paper-card {
     background: var(--paper-bg);
     border: 2px solid var(--ink-color);
-    border-radius: 2px 255px 3px 25px / 255px 5px 225px 3px; /* Irregular hand-drawn look */
-    box-shadow: 5px 5px 0px rgba(0,0,0,0.1);
+    border-radius: 2px 255px 3px 25px / 255px 5px 225px 3px;
+    /* Irregular hand-drawn look */
+    box-shadow: 5px 5px 0px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
     position: relative;
     padding: 2rem;
 }
 
-.paper-card::before {
-    /* Optional slight texture effect could go here */
-}
+
 
 /* Handwritten Button Style */
 .sketch-button {
@@ -49,13 +49,13 @@ body {
     padding: 0.75rem 2rem;
     cursor: pointer;
     transition: all 0.2s ease;
-    box-shadow: 2px 3px 0px rgba(0,0,0,0.1);
+    box-shadow: 2px 3px 0px rgba(0, 0, 0, 0.1);
 }
 
 .sketch-button:hover {
     transform: translateY(-2px) rotate(-1deg);
-    box-shadow: 4px 5px 0px rgba(0,0,0,0.15);
-    background: rgba(0,0,0,0.02);
+    box-shadow: 4px 5px 0px rgba(0, 0, 0, 0.15);
+    background: rgba(0, 0, 0, 0.02);
 }
 
 .sketch-button.primary {
@@ -72,7 +72,7 @@ body {
 .drop-zone {
     border: 3px dashed var(--border-color);
     border-radius: 15px;
-    background: rgba(255,255,255,0.5);
+    background: rgba(255, 255, 255, 0.5);
     transition: all 0.3s ease;
 }
 
@@ -91,26 +91,30 @@ body {
 }
 
 .progress-bar {
-    background: repeating-linear-gradient(
-        45deg,
-        var(--ink-color),
-        var(--ink-color) 10px,
-        var(--accent-color) 10px,
-        var(--accent-color) 20px
-    );
+    background: repeating-linear-gradient(45deg,
+            var(--ink-color),
+            var(--ink-color) 10px,
+            var(--accent-color) 10px,
+            var(--accent-color) 20px);
     height: 100%;
     border-radius: 8px;
     transition: width 0.3s ease;
 }
 
 /* Custom Text and Headings */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
     font-weight: bold;
     letter-spacing: 0.5px;
 }
 
 /* Inputs */
-input, select {
+input,
+select {
     background: transparent;
     border: none;
     border-bottom: 2px solid var(--border-color);
@@ -121,7 +125,8 @@ input, select {
     transition: border-color 0.3s;
 }
 
-input:focus, select:focus {
+input:focus,
+select:focus {
     outline: none;
     border-bottom-color: var(--ink-color);
 }
@@ -132,21 +137,31 @@ input:focus, select:focus {
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px) rotate(2deg); }
-    to { opacity: 1; transform: translateY(0) rotate(0); }
+    from {
+        opacity: 0;
+        transform: translateY(10px) rotate(2deg);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) rotate(0);
+    }
 }
 
 /* Utility to hide standard scrollbar if desired, or style it */
 ::-webkit-scrollbar {
     width: 10px;
 }
+
 ::-webkit-scrollbar-track {
     background: #f1f1f1;
 }
+
 ::-webkit-scrollbar-thumb {
     background: #888;
     border-radius: 5px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
     background: #555;
 }
@@ -158,3 +173,18 @@ input:focus, select:focus {
     }
 }
 
+/* Help Modal specific styles */
+#help-modal .paper-card {
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+#help-btn {
+    width: 50px;
+    height: 50px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50% 55% 50% 45% / 55% 50% 45% 50%;
+}

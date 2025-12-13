@@ -185,18 +185,99 @@ GET /api/convert/download/{filename}
 
 ## 🚀 デプロイ
 
-### Dockerを使用したデプロイ
+### Google Cloud Runへのデプロイ
 
-1. `Dockerfile` を作成
-2. `docker-compose.yml` を作成
-3. `docker-compose up -d` で起動
+MediaForgeはCloud Runに最適化されています。以下の手順でデプロイできます：
+
+#### 前提条件
+- Google Cloud CLIのインストール
+- Google Cloudプロジェクトの作成
+- Artifact RegistryまたはContainer Registryの有効化
+
+#### デプロイ手順
+
+1. **Google Cloud CLIの認証**
+```bash
+gcloud auth login
+gcloud config set project YOUR_PROJECT_ID
+```
+
+2. **Artifact Registryにリポジトリを作成（初回のみ）**
+```bash
+gcloud artifacts repositories create mediaforge-repo \
+    --repository-format=docker \
+    --location=asia-northeast1 \
+    --description="MediaForge container repository"
+```
+
+3. **Dockerイメージのビルドとプッシュ**
+```bash
+# イメージをビルド
+gcloud builds submit --tag asia-northeast1-docker.pkg.dev/YOUR_PROJECT_ID/mediaforge-repo/mediaforge:latest
+
+# または、ローカルでビルドしてプッシュ
+docker build -t asia-northeast1-docker.pkg.dev/YOUR_PROJECT_ID/mediaforge-repo/mediaforge:latest .
+docker push asia-northeast1-docker.pkg.dev/YOUR_PROJECT_ID/mediaforge-repo/mediaforge:latest
+```
+
+4. **Cloud Runにデプロイ**
+```bash
+gcloud run deploy mediaforge \
+    --image asia-northeast1-docker.pkg.dev/YOUR_PROJECT_ID/mediaforge-repo/mediaforge:latest \
+    --platform managed \
+    --region asia-northeast1 \
+    --allow-unauthenticated \
+    --memory 2Gi \
+    --cpu 2 \
+    --timeout 300 \
+    --max-instances 10
+```
+
+#### 推奨設定
+
+- **メモリ**: 2Gi以上（動画変換に必要）
+- **CPU**: 2以上（変換処理の高速化）
+- **タイムアウト**: 300秒（大きなファイルの処理に対応）
+- **最大インスタンス数**: コスト管理のため適切に設定
+
+#### 一時ファイルの自動クリーンアップ
+
+Cloud Runのエフェメラルストレージを効率的に使用するため、以下の機能が実装されています：
+
+- **自動クリーンアップ**: 30分ごとに1時間以上経過したファイルを削除
+- **ダウンロード後削除**: ファイルダウンロード後に自動削除
+- **シャットダウン時削除**: コンテナ終了時にすべての一時ファイルを削除
+
+#### モニタリングエンドポイント
+
+- **ヘルスチェック**: `GET /health`
+- **一時ファイルステータス**: `GET /api/cleanup/status`
+- **手動クリーンアップ**: `POST /api/cleanup/run`
+
+### Dockerを使用したローカルデプロイ
+
+1. **Dockerイメージをビルド**
+```bash
+docker build -t mediaforge .
+```
+
+2. **コンテナを起動**
+```bash
+docker run -p 8080:8080 mediaforge
+```
+
+3. **ブラウザでアクセス**
+```
+http://localhost:8080
+```
 
 ### 本番環境での考慮事項
 
-- HTTPSの設定
-- ファイルストレージの設定（S3など）
-- ログの設定
-- 監視とアラート
+- **HTTPSの設定**: Cloud Runは自動的にHTTPSを提供
+- **ファイルサイズ制限**: FastAPIの設定で調整可能
+- **ログの設定**: Cloud Loggingと自動統合
+- **監視とアラート**: Cloud Monitoringで設定
+- **コスト最適化**: max-instancesとタイムアウトの適切な設定
 
 ## 🤝 貢献
 
