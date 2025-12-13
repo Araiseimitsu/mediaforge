@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediaForge - 手書き風メディア変換</title>
+    <!-- FontAwesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Tailwind (Utility) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <!-- Custom Style -->
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+</head>
+<body class="min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- ヘッダー -->
+        <header class="text-center mb-12 fade-in">
+            <div class="inline-flex items-center justify-center mb-4">
+                <i class="fas fa-pencil-alt text-4xl text-gray-700 mr-3"></i>
+                <h1 class="text-5xl font-bold text-gray-800" style="transform: rotate(-2deg);">
+                    MediaForge
+                </h1>
+            </div>
+            <p class="text-gray-600 text-xl" style="font-family: 'Patrick Hand', cursive;">~ あなたのファイルを、手作り感覚で変換します ~</p>
+        </header>
+
+        <!-- メインコンテンツ -->
+        <main class="paper-card fade-in">
+            <!-- ファイルアップロードエリア -->
+            <div id="upload-section">
+                <div id="drop-zone" class="drop-zone p-12 text-center cursor-pointer hover:border-gray-500">
+                    <i class="fas fa-cloud-upload-alt text-6xl text-gray-400 mb-4"></i>
+                    <h3 class="text-2xl font-semibold text-gray-700 mb-2">ここにファイルを置いてね</h3>
+                    <p class="text-gray-500 mb-4">またはクリックして選択</p>
+                    <input type="file" id="file-input" class="hidden" accept="image/*,video/*,audio/*" multiple>
+                    <button class="sketch-button primary">
+                        <i class="fas fa-folder-open mr-2"></i>ファイルを選ぶ
+                    </button>
+                </div>
+                
+                <!-- サポート形式の表示 -->
+                <div class="mt-8 grid grid-cols-3 gap-6 text-center">
+                    <div class="p-3">
+                        <i class="fas fa-image text-gray-600 text-2xl mb-2"></i>
+                        <p class="text-lg font-bold text-gray-700">Image</p>
+                        <p class="text-sm text-gray-500">JPG, PNG, GIF...</p>
+                    </div>
+                    <div class="p-3">
+                        <i class="fas fa-video text-gray-600 text-2xl mb-2"></i>
+                        <p class="text-lg font-bold text-gray-700">Video</p>
+                        <p class="text-sm text-gray-500">MP4, AVI, MOV...</p>
+                    </div>
+                    <div class="p-3">
+                        <i class="fas fa-music text-gray-600 text-2xl mb-2"></i>
+                        <p class="text-lg font-bold text-gray-700">Audio</p>
+                        <p class="text-sm text-gray-500">MP3, WAV...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ファイル情報と変換オプション -->
+            <div id="file-info" class="hidden mt-8 border-t-2 border-dashed border-gray-300 pt-6">
+                <div class="mb-6">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">
+                        <i class="fas fa-file-alt mr-2"></i>ファイルリスト
+                    </h3>
+                    <div id="file-details" class="space-y-3 pl-4 border-l-2 border-gray-300"></div>
+                </div>
+
+                <!-- 変換オプション -->
+                <div class="bg-gray-50 rounded p-6 mb-8 border border-gray-200" style="transform: rotate(1deg);">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">
+                        <i class="fas fa-sliders-h mr-2"></i>設定
+                    </h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-lg font-medium text-gray-700 mb-2">どう変換する？</label>
+                            <select id="output-format" class="w-full">
+                                <option value="">形式を選んでね</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-lg font-medium text-gray-700 mb-2">品質は？</label>
+                            <select id="quality" class="w-full">
+                                <option value="high">最高 (High)</option>
+                                <option value="medium" selected>普通 (Medium)</option>
+                                <option value="low">軽め (Low)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- 画像用の追加オプション -->
+                    <div id="image-options" class="hidden mt-4 grid grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-lg font-medium text-gray-700 mb-2">幅 (px)</label>
+                            <input type="number" id="width" class="w-full" placeholder="自動">
+                        </div>
+                        <div>
+                            <label class="block text-lg font-medium text-gray-700 mb-2">高さ (px)</label>
+                            <input type="number" id="height" class="w-full" placeholder="自動">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 変換ボタン -->
+                <div class="text-center mt-8">
+                    <button id="convert-btn" class="sketch-button primary text-xl px-12 py-3">
+                        <i class="fas fa-magic mr-2"></i>変換スタート！
+                    </button>
+                </div>
+            </div>
+
+            <!-- 進捗表示 -->
+            <div id="progress-section" class="hidden mt-8">
+                <div class="p-4">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4 text-center">
+                        <i class="fas fa-pencil-alt fa-spin mr-2"></i>書き書き中...
+                    </h3>
+                    <div class="w-full progress-container h-6">
+                        <div class="progress-bar" style="width: 0%"></div>
+                    </div>
+                    <p class="text-center text-gray-600 mt-2">ちょっと待ってね...</p>
+                </div>
+            </div>
+
+            <!-- 結果表示 -->
+            <div id="result-section" class="hidden mt-8">
+                <div class="bg-green-50 border-2 border-green-200 rounded p-6" style="transform: rotate(-1deg);">
+                    <h3 class="text-2xl font-bold text-green-800 mb-4">
+                        <i class="fas fa-check text-2xl mr-2"></i>できたよ！
+                    </h3>
+                    <div id="result-info" class="mb-6 text-lg"></div>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                        <button id="download-btn" class="sketch-button primary bg-green-600 border-green-700 text-white">
+                            <i class="fas fa-download mr-2"></i>保存する
+                        </button>
+                        <button id="new-file-btn" class="sketch-button">
+                            <i class="fas fa-undo mr-2"></i>もう一度やる
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- フッター -->
+        <footer class="text-center mt-16 text-gray-500 pb-8">
+            <p class="text-lg">
+                <i class="fas fa-heart text-red-400"></i> 
+                MediaForge - Handwritten Edition
+            </p>
+        </footer>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,160 @@
+/* Handwritten & Paper Theme - MediaForge */
+@import url('https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap');
+
+:root {
+    --paper-bg: #fdfbf7;
+    --ink-color: #2c3e50;
+    --accent-color: #34495e;
+    --highlight-color: #e67e22;
+    --border-color: #bdc3c7;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+body {
+    background-color: #f0f2f5;
+    background-image: 
+        radial-gradient(#bdc3c7 1px, transparent 1px),
+        radial-gradient(#bdc3c7 1px, transparent 1px);
+    background-size: 20px 20px;
+    background-position: 0 0, 10px 10px;
+    font-family: 'Patrick Hand', cursive; /* Handwritten font */
+    color: var(--ink-color);
+    line-height: 1.6;
+}
+
+/* Paper Card Style */
+.paper-card {
+    background: var(--paper-bg);
+    border: 2px solid var(--ink-color);
+    border-radius: 2px 255px 3px 25px / 255px 5px 225px 3px; /* Irregular hand-drawn look */
+    box-shadow: 5px 5px 0px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    position: relative;
+    padding: 2rem;
+}
+
+.paper-card::before {
+    /* Optional slight texture effect could go here */
+}
+
+/* Handwritten Button Style */
+.sketch-button {
+    background: transparent;
+    border: 2px solid var(--ink-color);
+    border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+    color: var(--ink-color);
+    font-family: 'Patrick Hand', cursive;
+    font-weight: bold;
+    font-size: 1.2rem;
+    padding: 0.75rem 2rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 2px 3px 0px rgba(0,0,0,0.1);
+}
+
+.sketch-button:hover {
+    transform: translateY(-2px) rotate(-1deg);
+    box-shadow: 4px 5px 0px rgba(0,0,0,0.15);
+    background: rgba(0,0,0,0.02);
+}
+
+.sketch-button.primary {
+    background: var(--ink-color);
+    color: var(--paper-bg);
+    border-color: var(--ink-color);
+}
+
+.sketch-button.primary:hover {
+    background: var(--accent-color);
+}
+
+/* Drop Zone */
+.drop-zone {
+    border: 3px dashed var(--border-color);
+    border-radius: 15px;
+    background: rgba(255,255,255,0.5);
+    transition: all 0.3s ease;
+}
+
+.drop-zone.dragover {
+    border-color: var(--highlight-color);
+    background: rgba(230, 126, 34, 0.05);
+    transform: scale(1.02) rotate(1deg);
+}
+
+/* Progress Bar as a doodle */
+.progress-container {
+    border: 2px solid var(--ink-color);
+    border-radius: 10px;
+    padding: 2px;
+    background: white;
+}
+
+.progress-bar {
+    background: repeating-linear-gradient(
+        45deg,
+        var(--ink-color),
+        var(--ink-color) 10px,
+        var(--accent-color) 10px,
+        var(--accent-color) 20px
+    );
+    height: 100%;
+    border-radius: 8px;
+    transition: width 0.3s ease;
+}
+
+/* Custom Text and Headings */
+h1, h2, h3, h4, h5, h6 {
+    font-weight: bold;
+    letter-spacing: 0.5px;
+}
+
+/* Inputs */
+input, select {
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid var(--border-color);
+    font-family: 'Patrick Hand', cursive;
+    font-size: 1.1rem;
+    padding: 0.5rem;
+    color: var(--ink-color);
+    transition: border-color 0.3s;
+}
+
+input:focus, select:focus {
+    outline: none;
+    border-bottom-color: var(--ink-color);
+}
+
+/* Animations */
+.fade-in {
+    animation: fadeIn 0.6s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px) rotate(2deg); }
+    to { opacity: 1; transform: translateY(0) rotate(0); }
+}
+
+/* Utility to hide standard scrollbar if desired, or style it */
+::-webkit-scrollbar {
+    width: 10px;
+}
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 5px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .paper-card {
+        padding: 1.5rem;
+    }
+}
+
