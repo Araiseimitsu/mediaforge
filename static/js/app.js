@@ -2,7 +2,10 @@ class MediaForge {
     constructor() {
         this.currentFile = null;
         this.fileId = null;
+        this.gcsUri = null;
+        this.fileType = null;
         this.downloadUrl = null;
+        this.downloadFilename = null;
         this.init();
     }
 
@@ -123,15 +126,19 @@ class MediaForge {
     }
 
     async uploadFile(file) {
-        const formData = new FormData();
-        formData.append('file', file);
-
         try {
             this.showProgress('アップロード中...', 10);
 
             const response = await fetch('/api/convert/upload', {
                 method: 'POST',
-                body: formData
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    filename: file.name,
+                    content_type: file.type || 'application/octet-stream',
+                    size: file.size
+                })
             });
 
             if (!response.ok) {
@@ -140,9 +147,27 @@ class MediaForge {
 
             const result = await response.json();
             this.fileId = result.file_id;
+            this.gcsUri = result.gcs_uri;
+            this.fileType = result.file_type;
+
+            const uploadResponse = await fetch(result.upload_url, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': file.type || 'application/octet-stream'
+                },
+                body: file
+            });
+
+            if (!uploadResponse.ok) {
+                throw new Error('GCSへのアップロードに失敗しました');
+            }
 
             // ファイル情報を表示
-            this.showFileInfo(result);
+            this.showFileInfo({
+                filename: file.name,
+                size: file.size,
+                file_type: result.file_type
+            });
 
             // サポート形式を取得
             await this.loadSupportedFormats(result.file_type);
@@ -230,6 +255,7 @@ class MediaForge {
 
         const formData = new FormData();
         formData.append('file_id', this.fileId);
+        formData.append('gcs_uri', this.gcsUri);
         formData.append('output_format', outputFormat);
         formData.append('quality', quality);
 
@@ -254,6 +280,7 @@ class MediaForge {
 
             const result = await response.json();
             this.downloadUrl = result.download_url;
+            this.downloadFilename = result.output_filename;
 
             this.updateProgress(100);
             setTimeout(() => {
@@ -287,7 +314,7 @@ class MediaForge {
     downloadFile() {
         if (this.downloadUrl) {
             // ダウンロードURLからファイル名を抽出
-            const filename = this.downloadUrl.split('/').pop();
+            const filename = this.downloadFilename || 'converted_file';
             const link = document.createElement('a');
             link.href = this.downloadUrl;
             link.download = filename || 'converted_file';
@@ -364,7 +391,10 @@ class MediaForge {
         // アプリケーション状態をリセット
         this.currentFile = null;
         this.fileId = null;
+        this.gcsUri = null;
+        this.fileType = null;
         this.downloadUrl = null;
+        this.downloadFilename = null;
 
         // UIをリセット
         document.getElementById('upload-section').classList.remove('hidden');

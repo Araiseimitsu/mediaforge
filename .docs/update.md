@@ -1,5 +1,27 @@
 # 更新履歴
 
+## 2025-12-27: GCS署名付きURLアップロードと短時間自動削除の導入
+
+### 変更内容
+- 直アップロードを廃止し、GCS署名付きURLでのアップロードに変更
+- 変換後ファイルはGCSに保存し、**短時間（デフォルト5分）後に自動削除**
+- 変換結果のダウンロードは署名付きURL（デフォルト10分有効）を使用
+
+### 追加された設定（環境変数）
+- `GCS_BUCKET` : 使用するGCSバケット名（必須）
+- `SIGNED_URL_EXPIRATION_MINUTES` : 署名付きURLの有効期限（分、デフォルト10）
+- `DELETE_DELAY_MINUTES` : 変換後ファイルの削除待機時間（分、デフォルト5）
+
+### 変更されたファイル
+- `app/routers/convert.py` : 署名URL生成、GCS入出力、削除スケジュールの追加
+- `static/js/app.js` : 署名URLでのアップロードと署名URLダウンロードに対応
+- `app/utils/gcs.py` : GCS操作ユーティリティを追加
+- `requirements.txt` : `google-cloud-storage` を追加
+
+### 注意点
+- GCSのCORS設定で `PUT`/`GET` を許可する必要があります
+- Cloud RunサービスアカウントにGCSの読み書き権限が必要です
+
 ## 2025-12-13: 動画変換機能の修正と有効化
 
 ### 問題点
