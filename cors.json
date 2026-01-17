@@ -1,8 +1,0 @@
-[
-  {
-    "origin": ["https://mediaforge-966672454924.asia-northeast1.run.app"],
-    "method": ["PUT", "GET"],
-    "responseHeader": ["Content-Type"],
-    "maxAgeSeconds": 3600
-  }
-]

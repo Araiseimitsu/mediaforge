@@ -1,5 +1,50 @@
 # 更新履歴
 
+## 2026-01-17: ブラウザ内変換（ffmpeg.wasm）への切り替え
+
+### 変更内容
+- 変換処理をブラウザ内で実行（ffmpeg.wasm）
+- 変換後ファイルはローカル保存のみ
+- @ffmpeg/ffmpeg と @ffmpeg/util を静的配信、@ffmpeg/core はCDNから取得（シングルスレッド）
+
+### 変更されたファイル
+- static/js/app.js : ブラウザ変換ロジックに変更
+- templates/index.html : ESモジュール読み込みに変更
+- static/vendor/ffmpeg/... : ffmpeg.wasm関連モジュールを追加
+- README.md : ブラウザ内変換モードの説明を追加
+
+## 2026-01-17: GCS/サーバ変換の不要部分を削除
+
+### 変更内容
+- GCS依存とサーバ変換用コードを削除
+- バックエンドは静的配信のみの構成に整理
+
+### 変更されたファイル
+- app/main.py : 変換API/クリーンアップ処理を削除
+- requirements.txt : 変換関連ライブラリを削除
+- .env.example : GCS関連設定を削除
+- README.md : ブラウザ内変換前提で内容を整理
+
+## 2026-01-17: ffmpeg core をローカル配信に変更
+
+### 変更内容
+- ffmpeg-core.js/wasm を静的配信に切り替え（Cloud RunのCDN依存を排除）
+- 読み込み失敗時のエラーメッセージを改善
+
+### 変更されたファイル
+- static/js/app.js : coreの読み込み先をローカルに変更、エラーハンドリング強化
+- static/vendor/ffmpeg/core/ffmpeg-core.js : 追加
+- static/vendor/ffmpeg/core/ffmpeg-core.wasm : 追加
+
+## 2026-01-17: 画像変換をCanvas優先に変更
+
+### 変更内容
+- PNG/JPEG/WEBP の画像変換はブラウザのCanvasで実行（ffmpeg.wasmのメモリエラー回避）
+- それ以外の形式は従来通りffmpeg.wasmを使用
+
+### 変更されたファイル
+- static/js/app.js : 画像のCanvas変換処理を追加
+
 ## 2025-12-27: GCS署名付きURLアップロードと短時間自動削除の導入
 
 ### 変更内容
@@ -759,3 +804,5 @@ return {
 - ✗ システムレベルのFFmpegインストール
 - ✗ ffprobe
 - ✗ 追加の設定や環境変数
+
+

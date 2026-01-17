@@ -4,11 +4,6 @@ FROM python:3.12-slim
 # 作業ディレクトリを設定
 WORKDIR /app
 
-# システムパッケージの更新とFFmpegのインストール
-RUN apt-get update && apt-get install -y \
-    ffmpeg \
-    && rm -rf /var/lib/apt/lists/*
-
 # 依存関係ファイルをコピー
 COPY requirements.txt .
 
@@ -19,9 +14,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY app/ ./app/
 COPY static/ ./static/
 COPY templates/ ./templates/
-
-# 一時ディレクトリを作成
-RUN mkdir -p uploads downloads
 
 # ポート8080を公開（Cloud Runのデフォルト）
 EXPOSE 8080
